@@ -94,6 +94,31 @@ output = []
 # Reverse the dictionary to get the device type from the device label
 label = {v:k for k, v in DEVICES.items()}
 
+def plot_distance_matrix(distance_matrix: np.array) -> None:
+    """
+    Plots a distance matrix using the matplotlib library.
+
+    Args:
+        distance_matrix (np.array): Distance matrix to plot.
+
+    Returns:
+        None.
+    """
+    plt.imshow(distance_matrix, cmap='viridis', interpolation='nearest')
+
+    # Write distance values on the plot for each cell
+    for i in range(len(distance_matrix)):
+        for j in range(len(distance_matrix)):
+            plt.text(j, i, round(distance_matrix[i][j], 2), ha="center", va="center", color="w")
+
+    plt.colorbar()
+    plt.title("Euclidean Distance Matrix")
+    plt.xlabel("Locations"), plt.ylabel("Locations")
+    plt.savefig(os.path.join(os.getcwd(), "dist", "distance_matrix.png"), dpi=300)
+    plt.show()
+
+# plot_distance_matrix(distance_matrix)
+
 if __name__ == "__main__":
     while model:
         # Generate total random devices based on the types of devices
