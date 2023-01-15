@@ -379,6 +379,6 @@ if __name__ == "__main__":
     plt.xlabel("Distance (m)"), plt.ylabel("Path Loss (dB)"), plt.grid(True)
     plt.suptitle("Log-normal Path Loss Model", fontsize=16)
     plt.title(f"f_c = {fc/1e6}MHz, sigma = {sigma}dB, n = 2", fontsize=10)
-    plt.savefig(os.path.join(os.getcwd(), "dist/semilogx.png"), dpi=300)
-    # plt.savefig(os.path.join(os.getcwd(), "dist/semilogx-method1.png"), dpi=300)
+    plt.savefig(os.path.join(os.getcwd(), "dist", "semilogx.png"), dpi=300)
+    # plt.savefig(os.path.join(os.getcwd(), "dist", "semilogx-method1.png"), dpi=300)
     plt.show()
