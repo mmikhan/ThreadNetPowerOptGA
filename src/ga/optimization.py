@@ -380,46 +380,17 @@ if __name__ == "__main__":
                     if not current_device == DEVICES["Unallocated"] and not next_device == DEVICES["Unallocated"]:
                         # Calculate the Path loss between the devices
                         plz = logdist_or_norm(fc, distance_matrix[current_position][next_position], d0, Exp, sigma)
-                        # path_loss.append(pls[0])
 
                         # Calculate the RSSI between the devices
                         RSSI_Down = current_new_transmission_power - plz[0] + Gt + Gr
                         RSSI_Up = next_new_transmission_power - plz[0] + Gt + Gr
-                        # RSSI.append((RSSI_Downlink, RSSI_Uplink))
-
-                        # Print the RSSI between the devices
-                        # print("=========================================")
-                        # print(f"RSSI Downlink: {RSSI_Downlink} dBm")
-                        # print(f"RSSI Uplink: {RSSI_Uplink} dBm")
 
                         # Check if the RSSI is greater than -100 dBm
                         if not RSSI_Down > RSSI_THRESHOLD:
-                            # satisfied_condition = False
-                            # total_penalized_transmission_power += PENALTY
-                            # individual_penalized_transmission_power += PENALTY
-                            # sc = False
-                            # RSSI_Threadhold_penalty += PENALTY
                             RSSI_Threadhold_penalty += 1000
 
                         if not RSSI_Up > RSSI_THRESHOLD:
-                            # satisfied_condition = False
-                            # total_penalized_transmission_power += PENALTY
-                            # individual_penalized_transmission_power += PENALTY
-                            # sc = False
-                            # RSSI_Threadhold_penalty += PENALTY
                             RSSI_Threadhold_penalty += 1000
-
-                        # individual_result.append({
-                        #     "current_device": current_device,
-                        #     "next_device": next_device,
-                        #     "path_loss": pls[0],
-                        #     "distance": distance_matrix[current_position][next_position],
-                        #     "RSSI_Downlink": RSSI_Downlink,
-                        #     "RSSI_Uplink": RSSI_Uplink,
-                        # })
-                
-                # if sc:
-                #     return [i[3] for i in solution]
 
                 return [i[3] for i in solution] + [RSSI_Threadhold_penalty]
 
@@ -453,11 +424,6 @@ if __name__ == "__main__":
 
             def mutation(solution, mutation_rate):
                 # for i in range(len(solution)):
-
-                    # it's from Jai and no longer works correctly
-                    # if (random.random() < mutation_rate):
-                    #     solution[i] = random.uniform(-20, 8)
-
                     # GitHub copilot magic (another one)
                     # if(random.random() < mutation_rate):
                     #     solution[i] = (solution[i][0], solution[i][1], solution[i][2], random.randint(-20, 8))
@@ -496,9 +462,6 @@ if __name__ == "__main__":
                 population = [x for _, x in sorted(zip(new_fitness_values, new_solutions))]
                 fitness_values = [x for x, _ in sorted(zip(new_fitness_values, new_solutions))]
 
-                # population = [x for _, x in sorted(zip(fitness_values + new_fitness_values, population + new_solutions))][:POPULATION_SIZE]
-                # fitness_values = [x for x in sorted(zip(fitness_values + new_fitness_values))][:POPULATION_SIZE]
-
                 print(f"Generation {i+1}: {population[0]}")
 
             print(f"Best solution: {population[0]}")
@@ -510,28 +473,6 @@ if __name__ == "__main__":
             plt.ylabel("Fitness Value")
             plt.savefig(os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"))
             plt.show()
-
-                    # GitHub copilot magic code for crossover and mutation
-                    # Select two parents
-                    # parent1 = selected_solutions[j]
-                    # parent2 = selected_solutions[j+1]
-
-                    # # Select a random crossover point
-                    # crossover_point = random.randint(0, TOTAL_DEVICES-1)
-
-                    # # Perform crossover
-                    # child1 = parent1[:crossover_point] + parent2[crossover_point:]
-                    # child2 = parent2[:crossover_point] + parent1[crossover_point:]
-
-                    # # Perform mutation
-                    # mutation_point = random.randint(0, TOTAL_DEVICES-1)
-                    # child1[mutation_point] = tuple(list(child1[mutation_point]) + [random.randint(-20, 8)])
-                    # child2[mutation_point] = tuple(list(child2[mutation_point]) + [random.randint(-20, 8)])
-
-                    # # Add the children to the population
-                    # population.append(child1)
-                    # population.append(child2)
-
             
             # GitHub copilot check
             # new_population = []
