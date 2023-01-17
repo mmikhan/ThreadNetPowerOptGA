@@ -120,6 +120,19 @@ def plot_distance_matrix(distance_matrix: np.array) -> None:
 
 # plot_distance_matrix(distance_matrix)
 
+def sphere(power: list) -> int:
+    """
+    Calculate the total transmission power of the network.
+
+    Args:
+        power (list): List of transmission power for each device.
+    
+    Returns:
+        int: Total transmission power of the network.
+    """
+    return sum(power)
+
+
 if __name__ == "__main__":
     while model:
         # Generate total random devices based on the types of devices
@@ -466,6 +479,10 @@ if __name__ == "__main__":
 
             print(f"Best solution: {population[0]}")
             print(f"Best fitness value: {fitness_values[0]}")
+
+            # print(f"Lowest power consumption: {sum([i[3] for i in population[0]])} mW")
+            # print(f"Lowest power consumption: {sphere([i[3] for i in population[0]])} mW")
+            print(f"Lowest power consumption: {sphere(fitness_values[0])} mW")
 
             # Plot fitness values over generations
             plt.plot(sorted([sum(x) for x in fitness_values], reverse=True))
