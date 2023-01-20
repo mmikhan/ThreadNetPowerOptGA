@@ -83,17 +83,15 @@ def main(MAX_ITERATION, MUTATION_RATE, population, fitness) -> tuple:
 
         print("Iteration: {}, Best Fitness: {}".format(i, min(fitness)))
 
-    best_solution = population[fitness.index(min(fitness))]
-
-    return population, fitness, best_solution
+    return population, fitness
 
 
 if __name__ == "__main__":
-    population, fitness, solution = main(
+    population, fitness = main(
         MAX_ITERATION, MUTATION_RATE, population, fitness)
 
     print("Lowest transmission power: {} dBm".format(GA.sphere(fitness[0])))
-    print("Best solution: {}".format(solution))
+    print("Best solution: {}".format(population[0]))
     print("Fitness: {}".format(fitness[0]))
     print("Difference between the initial and best transmission power: {}".format(
         GA.sphere(txpower) - GA.sphere(fitness[0])))
