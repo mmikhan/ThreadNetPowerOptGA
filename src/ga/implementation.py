@@ -95,6 +95,10 @@ if __name__ == "__main__":
     print("Lowest transmission power: {} dBm".format(GA.sphere(fitness[0])))
     print("Best solution: {}".format(solution))
     print("Fitness: {}".format(fitness[0]))
+    print("Difference between the initial and best transmission power: {}".format(
+        GA.sphere(txpower) - GA.sphere(fitness[0])))
+    print("Difference between the worst and best transmission power: {}".format(
+        GA.sphere(fitness[-1]) - GA.sphere(fitness[0])))
 
     # Plot the fitness values of the population over the generations
     plt.plot(sorted([sum(x) for x in fitness], reverse=True))
