@@ -9,7 +9,7 @@ from scipy.spatial.distance import cdist
 
 
 class GA:
-    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, txpower_min: int = -20, txpower_max: int = 8) -> None:
+    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, txpower_min: int = -20, txpower_max: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1) -> None:
         '''
         Devices: Dictionary of devices
         '''
@@ -75,6 +75,16 @@ class GA:
         TxPower Max: The maximum transmission power
         '''
         self.TXPOWER_MAX = txpower_max
+
+        '''
+        Max Iteration: The maximum number of iterations
+        '''
+        self.MAX_ITERATION = max_iteration
+
+        '''
+        Mutation Rate: The mutation rate
+        '''
+        self.MUTATION_RATE = mutation_rate
 
     @property
     def distances(self) -> np.array:
@@ -348,3 +358,51 @@ class GA:
                     device, position, transmission_power, new_transmission_power)
 
         return solution
+
+    def run(self, population: list, fitness: list) -> tuple:
+        '''
+        Run the genetic algorithm.
+
+        Args:
+            population (list): List of individuals in the population.
+            fitness (list): List of fitness values.
+
+        Returns:
+            tuple: The best individual and its fitness value.
+
+        Raises:
+            ValueError: The population and fitness must be specified.
+        '''
+
+        if population is None:
+            raise ValueError("The population must be specified")
+
+        if fitness is None:
+            raise ValueError("The fitness must be specified")
+
+        for i in range(self.MAX_ITERATION):
+            selected_population = self.selection(
+                population, [sum(x) for x in fitness])
+
+            children = []
+
+            for j in range(0, len(selected_population), 2):
+                parent1 = selected_population[j]
+                parent2 = selected_population[j+1]
+
+                child1, child2 = self.crossover(parent1, parent2)
+
+                child1 = self.mutation(child1, self.MUTATION_RATE)
+                child2 = self.mutation(child2, self.MUTATION_RATE)
+
+                children.append(child1)
+                children.append(child2)
+
+            new_fitness = [self.fitness(s) for s in children]
+
+            population = [x for _, x in sorted(
+                zip(new_fitness, children), key=lambda pair: pair[0])]
+            fitness = [x for x, _ in sorted(
+                zip(new_fitness, children), key=lambda pair: pair[0])]
+
+        return population, fitness
