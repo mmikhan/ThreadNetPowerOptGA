@@ -54,41 +54,8 @@ population = [[tuple(list(i) + [random.randint(-20, 8)])
 # Calculate the fitness of the initial population
 fitness = [GA.fitness(s) for s in population]
 
-
-def main(MAX_ITERATION, MUTATION_RATE, population, fitness) -> tuple:
-    for i in range(MAX_ITERATION):
-        selected_population = GA.selection(
-            population, [sum(x) for x in fitness])
-
-        children = []
-
-        for j in range(0, len(selected_population), 2):
-            parent1 = selected_population[j]
-            parent2 = selected_population[j+1]
-
-            child1, child2 = GA.crossover(parent1, parent2)
-
-            child1 = GA.mutation(child1, MUTATION_RATE)
-            child2 = GA.mutation(child2, MUTATION_RATE)
-
-            children.append(child1)
-            children.append(child2)
-
-        new_fitness = [GA.fitness(s) for s in children]
-
-        population = [x for _, x in sorted(
-            zip(new_fitness, children), key=lambda pair: pair[0])]
-        fitness = [x for x, _ in sorted(
-            zip(new_fitness, children), key=lambda pair: pair[0])]
-
-        print("Iteration: {}, Best Fitness: {}".format(i, min(fitness)))
-
-    return population, fitness
-
-
 if __name__ == "__main__":
-    population, fitness = main(
-        MAX_ITERATION, MUTATION_RATE, population, fitness)
+    population, fitness = GA.run(population, fitness)
 
     print("Lowest transmission power: {} dBm".format(GA.sphere(fitness[0])))
     print("Best solution: {}".format(population[0]))
