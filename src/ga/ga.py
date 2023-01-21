@@ -2,6 +2,7 @@ import os
 import random
 import itertools
 import numpy as np
+import collections.abc
 
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
@@ -133,6 +134,21 @@ class GA:
         plt.xlabel("Locations"), plt.ylabel("Locations")
         plt.savefig(path, dpi=300)
         plt.show()
+
+        def grouper(iterator: collections.abc.Iterator, n: int) -> collections.abc.Iterator[list]:
+            '''
+            Group the iterator into n-sized chunks
+                - iterator: iterator to group
+                - n: size of the chunk
+
+                - Example:
+                    - grouper([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)
+                    - [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+                - Reference: https://stackoverflow.com/a/71951567/3313563
+            '''
+            while chunk := list(itertools.islice(iterator, n)):
+                yield chunk
 
     def lognorm(self, fc: float, d: float, d0: float, exp: int, sigma: int, noise: bool = False) -> list:
         '''
