@@ -9,7 +9,7 @@ from scipy.spatial.distance import cdist
 
 
 class GA:
-    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, txpower_min: int = -20, txpower_max: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1) -> None:
+    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, min_txpower: int = -20, max_txpower: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1) -> None:
         '''
         Devices: Dictionary of devices
         '''
@@ -69,12 +69,12 @@ class GA:
         '''
         TxPower Min: The minimum transmission power
         '''
-        self.TXPOWER_MIN = txpower_min
+        self.MIN_TXPOWER = min_txpower
 
         '''
         TxPower Max: The maximum transmission power
         '''
-        self.TXPOWER_MAX = txpower_max
+        self.MAX_TXPOWER = max_txpower
 
         '''
         Max Iteration: The maximum number of iterations
@@ -340,7 +340,7 @@ class GA:
             for i in range(len(solution)):
                 if np.random.random() < mutation_rate:
                     solution[i] = (solution[i][0], solution[i][1], solution[i][2], random.randint(
-                        self.TXPOWER_MIN, self.TXPOWER_MAX))
+                        self.MIN_TXPOWER, self.MAX_TXPOWER))
 
             return solution
 
