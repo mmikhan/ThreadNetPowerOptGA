@@ -1,4 +1,13 @@
 {
     "editor.minimap.enabled": false,
     "files.insertFinalNewline": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./test/model",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
 }
