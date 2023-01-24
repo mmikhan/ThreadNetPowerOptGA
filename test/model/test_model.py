@@ -106,12 +106,21 @@ class TestModel(unittest.TestCase):
         self.assertEqual(np.all(np.nan_to_num(path_loss) != np.nan), True)
 
     def test_calculate_rssi_return_tuple(self):
+        path_loss = self.model.calculate_path_loss(
+            current_position=5, next_position=7)
+
         self.assertIsInstance(self.model.calculate_rssi(
-            current_position=5, next_position=7, current_transmission_power=2, next_transmission_power=3), tuple)
+            current_transmission_power=2, next_transmission_power=3, path_loss=path_loss), tuple)
 
     def test_calculate_rssi_return_no_nan(self):
-        rssi_downlink, rssi_uplink, _, sensitivity_penalty = self.model.calculate_rssi(
-            current_position=0, next_position=0, current_transmission_power=0, next_transmission_power=0)
+        path_loss = self.model.calculate_path_loss(
+            current_position=0, next_position=0)
+
+        rssi_downlink, rssi_uplink = self.model.calculate_rssi(
+            current_transmission_power=0, next_transmission_power=0, path_loss=path_loss)
+
+        sensitivity_penalty = self.model.rssi_sensitivity_penalty(
+            rssi_downlink, rssi_uplink)
 
         self.assertEqual(np.isnan(rssi_downlink), False)
         self.assertEqual(np.isnan(rssi_uplink), False)
@@ -120,8 +129,14 @@ class TestModel(unittest.TestCase):
     def test_penalized_transmission_power_from_rssi_calculation(self):
         model = Model(distances=np.array([[123456789]]))
 
-        rssi_downlink, rssi_uplink, _, sensitivity_penalty = model.calculate_rssi(
-            current_position=0, next_position=0, current_transmission_power=0, next_transmission_power=0)
+        path_loss = model.calculate_path_loss(
+            current_position=0, next_position=0)
+
+        rssi_downlink, rssi_uplink = model.calculate_rssi(
+            current_transmission_power=0, next_transmission_power=0, path_loss=path_loss)
+
+        sensitivity_penalty = model.rssi_sensitivity_penalty(
+            rssi_downlink, rssi_uplink)
 
         self.assertLess(rssi_downlink, -100)
         self.assertLess(rssi_uplink, -100)

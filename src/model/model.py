@@ -90,19 +90,14 @@ class Model:
 
         return path_loss
 
-    def calculate_rssi(self, current_position: int, next_position: int, current_transmission_power: int, next_transmission_power: int) -> tuple[int, int, int]:
-
-        path_loss = self.calculate_path_loss(current_position, next_position)
+    def calculate_rssi(self, current_transmission_power: int, next_transmission_power: int, path_loss: int) -> tuple[int, int]:
 
         RSSI_Downlink = current_transmission_power - path_loss + self.GT + self.GR
         RSSI_Uplink = next_transmission_power - path_loss + self.GT + self.GR
 
-        sensitivity_penalty = self.rssi_sensitivity_penalty(
-            RSSI_Downlink, RSSI_Uplink)
+        return RSSI_Downlink, RSSI_Uplink
 
-        return RSSI_Downlink, RSSI_Uplink, path_loss, sensitivity_penalty
-
-    def rssi_sensitivity_penalty(self, rssi_downlink, rssi_uplink):
+    def rssi_sensitivity_penalty(self, rssi_downlink, rssi_uplink) -> int:
         sensitivity_penalty = 0
 
         if not rssi_downlink > self.RSSI_THRESHOLD:
@@ -113,9 +108,9 @@ class Model:
 
         return sensitivity_penalty
 
-    def calculate_path_loss(self, current_position, next_position, noise: bool = False):
+    def calculate_path_loss(self, current_position: int, next_position: int, noise: bool = False) -> np.float64:
         if self.DISTANCES[current_position][next_position] == 0:
-            return 0
+            return np.float64(0)
 
         return self.lognorm(
             self.FC, self.DISTANCES[current_position][next_position], self.D0, self.EXP, self.SIGMA, noise)
@@ -146,8 +141,14 @@ class Model:
             current_device, current_position, current_transmission_power = current
             next_device, next_position, next_transmission_power = next
 
-            RSSI_Downlink, RSSI_Uplink, path_loss, sensitivity_penalty = self.calculate_rssi(
-                current_position, next_position, current_transmission_power, next_transmission_power)
+            path_loss = self.calculate_path_loss(
+                current_position, next_position)
+
+            RSSI_Downlink, RSSI_Uplink = self.calculate_rssi(
+                current_transmission_power, next_transmission_power, path_loss)
+
+            sensitivity_penalty = self.rssi_sensitivity_penalty(
+                RSSI_Downlink, RSSI_Uplink)
 
             result.append((current_device, next_device, self.DISTANCES[current_device]
                           [next_device], path_loss, RSSI_Downlink, RSSI_Uplink, sensitivity_penalty))
