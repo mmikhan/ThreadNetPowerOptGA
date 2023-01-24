@@ -168,3 +168,24 @@ class Model:
         '''
         while chunk := list(itertools.islice(iterator, n)):
             yield chunk
+
+    def mathematical_constraints_penalty(self, nodes: list[int]) -> tuple:
+        constraints_penalty = 0
+
+        # N_REED = N_ROUTER + N_LEADER
+        if not nodes.count(self.DEVICES["REED"]) == nodes.count(self.DEVICES["Router"]) + nodes.count(self.DEVICES["Leader"]):
+            constraints_penalty += self.PENALTY
+
+        # N_LEADER = 1
+        if not nodes.count(self.DEVICES["Leader"]) == 1:
+            constraints_penalty += self.PENALTY
+
+        # N_ROUTER + N_LEADER >= 3
+        if not nodes.count(self.DEVICES["Router"]) + nodes.count(self.DEVICES["Leader"]) >= 3:
+            constraints_penalty += self.PENALTY
+
+        # N_BORDER_ROUTER = 2
+        if not nodes.count(self.DEVICES["Border Router"]) == 2:
+            constraints_penalty += self.PENALTY
+
+        return nodes, constraints_penalty
