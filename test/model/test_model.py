@@ -38,12 +38,12 @@ class TestModel(unittest.TestCase):
         self.model = Model(devices=self.DEVICES, total_device=self.TOTAL_DEVICE, distances=self.DISTANCES, fc=self.FC, d0=self.D0,
                            sigma=self.SIGMA, exp=self.EXP, gt=self.GT, gr=self.GR, rssi_threshold=self.RSSI_THRESHOLD, penalty=self.PENALTY)
 
-        nodes = [random.choice(list(self.model.DEVICES.values()))
-                 for _ in range(self.model.TOTAL_DEVICE)]
+        self.nodes = [random.choice(list(self.model.DEVICES.values()))
+                      for _ in range(self.model.TOTAL_DEVICE)]
         txpower = [random.choice([_ for _ in range(-20, self.model.TOTAL_DEVICE+1, 4)])
                    for _ in range(self.model.TOTAL_DEVICE)]
         x = [(node, position, transmission_power) for position,
-             (node, transmission_power) in enumerate(zip(nodes, txpower))]
+             (node, transmission_power) in enumerate(zip(self.nodes, txpower))]
         self.important_nodes = sorted(x, key=lambda x: x[0], reverse=True)
 
         return super().setUp()
@@ -188,6 +188,32 @@ class TestModel(unittest.TestCase):
     def test_triangle_combine_network_topology_return_a_list_of_tuples_with_length_7(self):
         self.assertEqual(len(self.model.triangle_combine_network_topology(
             self.important_nodes)[0][0]), 7)
+
+    def test_mathematical_constraints_penalty_returns_a_tuple(self):
+        self.assertIsInstance(self.model.mathematical_constraints_penalty(
+            self.nodes), tuple)
+
+    def test_mathematical_constraints_penalty_returns_a_tuple_with_length_2(self):
+        self.assertEqual(len(self.model.mathematical_constraints_penalty(
+            self.nodes)), 2)
+
+    def test_mathematical_constraints_penalty_returns_a_tuple_with_penalty(self):
+        nodes = [5, 5, 4, 3, 3, 2, 2, 1]
+
+        self.assertNotEqual(
+            self.model.mathematical_constraints_penalty(nodes)[1], 0)
+
+    def test_mathematical_constraints_penalty_returns_a_tuple_with_no_penalty(self):
+        nodes = [5, 5, 4, 3, 3, 2, 2, 2]
+
+        self.assertEqual(
+            self.model.mathematical_constraints_penalty(nodes)[1], 0)
+
+    def test_mathematical_constraints_penalty_returns_a_tuple_with_valid_device_types_list(self):
+        valid_nodes = [5, 5, 4, 3, 3, 2, 2, 2]
+
+        self.assertListEqual(self.model.mathematical_constraints_penalty(
+            valid_nodes)[0], valid_nodes)
 
 
 if __name__ == '__main__':
