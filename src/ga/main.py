@@ -1,6 +1,7 @@
 import os
 import sys
 import tabulate
+import ga as Ga
 import numpy as np
 
 from datetime import datetime
@@ -79,3 +80,48 @@ if __name__ == '__main__':
           'Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty']))
 
     MODEL.plot_path_loss_model(noise=True)
+
+    '''
+    Let the GA do the transmission power optimization begins
+    '''
+    POPULATION_SIZE: int = 20
+
+    # Generate the initial population by replacing the transmission power of each device with newer values
+    population: list = [[(nodes[0], nodes[1], np.random.randint(-20, 8))
+                         for nodes in important_nodes] for _ in range(POPULATION_SIZE)]
+
+    GA: Ga = Ga.GA(distances=cdist(DISTANCE, DISTANCE))
+
+    # Calculate the fitness of the initial population
+    fitness = [GA.fitness(s) for s in population]
+
+    population, fitness = GA.run(population, fitness)
+
+    # Merge the initial nodes with the best solution from the GA
+    merge_solution = [(node, i, fitness[0][:-1][i])
+                      for i, (node, position, txpower) in enumerate(important_nodes)]
+
+    # Re-verify the best fitness of the merged solution with the GA
+    retest_merge_solutions = [GA.fitness(r)
+                              for r in [s for s in [merge_solution]]]
+
+    print(tabulate.tabulate(merge_solution, headers=[
+        'Node', 'Position', 'Fitness']))
+    print(f"Fitness: {fitness[0][:-1]}\nLowest transmission power: {GA.sphere(fitness[0])} dBm\nBest solution: {merge_solution}\nDifference between the initial and best transmission power: {GA.sphere(txpower) - GA.sphere(fitness[0])}\nDifference between the worst and best transmission power: {GA.sphere(fitness[-1]) - GA.sphere(fitness[0])}\nLowest_txpower: {GA.sphere(fitness[0])}\nHighest_txpower: {GA.sphere(fitness[-1])}\nRSSI_penalty: {retest_merge_solutions[0][-1]}\nPenalty_check: {'✅' if retest_merge_solutions[0][-1] == 0 else '❌'}\nInitial_~_final_txpower: {GA.sphere(fitness[0]) - GA.sphere(txpower)}\nWorst_~_best_txpower: {GA.sphere(fitness[0]) - GA.sphere(fitness[-1])}")
+
+    MODEL.export_to_csv(
+        [[fitness[0][:-1], [GA.sphere(fitness[0])], merge_solution, [GA.sphere(txpower) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1]) - GA.sphere(fitness[0])], [GA.sphere(fitness[0])], [GA.sphere(
+            fitness[-1])], retest_merge_solutions[0][-1], ['✅' if retest_merge_solutions[0][-1] == 0 else '❌'], [GA.sphere(fitness[0]) - GA.sphere(txpower)], [GA.sphere(fitness[0]) - GA.sphere(fitness[-1])]]],
+        ['Fitness', 'Lowest txpower', 'Best solution', 'Initial // best txpower', 'Worst // best txpower', 'Lowest txpower',
+            'Highest txpower', 'RSSI penalty', 'Penalty check', 'Initial ~ final txpower', 'Worst ~ best txpower'],
+        os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
+
+    import matplotlib.pyplot as plt
+
+    # Plot the fitness values of the population over the generations
+    plt.plot(sorted([sum(x) for x in fitness], reverse=True))
+    plt.xlabel("Generation")
+    plt.ylabel("Fitness Value")
+    plt.savefig(os.path.join(os.getcwd(), "dist",
+                f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"))
+    plt.close()
