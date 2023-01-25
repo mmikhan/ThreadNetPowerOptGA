@@ -1,7 +1,9 @@
-import sys
+import os
+import csv
 import itertools
 import numpy as np
 import collections.abc
+from datetime import datetime
 from scipy.spatial.distance import cdist
 
 
@@ -190,3 +192,9 @@ class Model:
             constraints_penalty += self.PENALTY
 
         return nodes, constraints_penalty
+
+    def export_to_csv(self, data: list, labels: list = ['Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty'], loc: str = os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")):
+        with open(loc, "w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(labels)
+            writer.writerows(data)
