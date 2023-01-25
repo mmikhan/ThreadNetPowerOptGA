@@ -1,4 +1,5 @@
 import os
+import sys
 import random
 import itertools
 import numpy as np
@@ -6,6 +7,11 @@ import collections.abc
 
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
+
+dir = os.path.join(os.getcwd(), 'src', 'model')
+sys.path.append(dir)
+
+import model as Model  # noqa
 
 
 class GA:
@@ -210,38 +216,15 @@ class GA:
             list: List of fitness values.
         '''
 
-        sensitivity_penalty = 0
+        MODEL: Model = Model.Model()
 
-        for comb in itertools.combinations(solution, 2):
-            current, next = comb
+        connection: list = MODEL.combine_network_topology(
+            solution, unallocated=False)
 
-            current_device, current_position, current_transmission_power, current_new_transmission_power = current
-            next_device, next_position, next_transmission_power, next_new_transmission_power = next
+        rssi_penalty: np.ndarray = np.array(
+            [connection[i][-1] for i in range(len(connection))]).sum()
 
-            '''
-            Filter out the unallocated devices from the RSSI calculation
-            since the unallocated devices are not connected to the network
-            thus, it doesn't make sense to calculate the RSSI between them
-            '''
-            if not current_device == self.DEVICES["Unallocated"] and not next_device == self.DEVICES["Unallocated"]:
-                # Calculate the Path loss between the devices
-                path_loss = self.lognorm(
-                    self.FC, self.DISTANCES[current_position][next_position], self.D0, self.EXP, self.SIGMA)
-
-                # Calculate the RSSI between the devices
-                RSSI_Downlink = current_new_transmission_power - \
-                    path_loss[0] + self.GT + self.GR
-                RSSI_Uplink = next_new_transmission_power - \
-                    path_loss[0] + self.GT + self.GR
-
-                # Check if the RSSI is greater than -100 dBm
-                if not RSSI_Downlink > self.RSSI_THRESHOLD and not np.isnan(RSSI_Downlink):
-                    sensitivity_penalty += self.PENALTY
-
-                if not RSSI_Uplink > self.RSSI_THRESHOLD and not np.isnan(RSSI_Uplink):
-                    sensitivity_penalty += self.PENALTY
-
-        return [i[3] for i in solution] + [sensitivity_penalty]
+        return [i[-1] for i in solution] + [rssi_penalty]
 
     def selection(self, population: list, fitness: list, method: str = "probability") -> list:
         '''
@@ -348,14 +331,11 @@ class GA:
             if np.random.random() < mutation_rate:
                 swap_with = int(random.random() * len(solution))
 
-                device, position, transmission_power, new_transmission_power = solution[swapped]
-                device2, position2, transmission_power2, new_transmission_power2 = solution[
-                    swap_with]
+                device, position, transmission_power = solution[swapped]
+                device2, position2, transmission_power2 = solution[swap_with]
 
-                solution[swapped] = (
-                    device2, position2, transmission_power2, new_transmission_power2)
-                solution[swap_with] = (
-                    device, position, transmission_power, new_transmission_power)
+                solution[swapped] = (device2, position2, transmission_power2)
+                solution[swap_with] = (device, position, transmission_power)
 
         return solution
 
