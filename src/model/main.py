@@ -1,5 +1,4 @@
 import os
-import csv
 import tabulate
 import numpy as np
 import model as Model
@@ -21,7 +20,6 @@ total_penalty: list = []
 
 device_specification: list = []
 
-# network_specification: list = []
 connection_specification: list = []
 
 each_penalized_transmission_power: np.ndarray = []
@@ -44,26 +42,33 @@ if __name__ == '__main__':
         connection: list = MODEL.combine_network_topology(
             important_nodes, unallocated=False)
 
+        # Store the connection specification for each device to export to csv
         connection_specification.append(connection)
         connection_specification.append([()])
 
-        each_penalized_transmission_power.append(
-            np.array([[connection[i][6] for i in range(len(connection))] + [PENALTY] + [sum(txpower)]]))
+        # Sum of the entire transmission power:
+        # sum of penalty from each combination of nodes + penalty from device type selection + sum of transmission power
+        entire_txpower: np.ndarray = np.array([connection[i][6] for i in range(
+            len(connection))] + [PENALTY] + [sum(txpower)]).sum()
 
-        device_specification.append([nodes, txpower, sum(txpower), [PENALTY], [sum(
-            [connection[i][6] for i in range(len(connection))])], [each_penalized_transmission_power[-1].sum()]])
+        # Sum of the RSSI penalty from each combination of nodes
+        rssi_penalty: np.ndarray = np.array(
+            [connection[i][6] for i in range(len(connection))]).sum()
 
-        if PENALTY == 0 and [sum([connection[i][6] for i in range(len(connection))])][0] == 0:
+        # Store the device specification with transmission powers to export to csv
+        device_specification.append([nodes, txpower, sum(
+            txpower), PENALTY, rssi_penalty, entire_txpower])
+
+        if PENALTY == 0 and rssi_penalty == 0:
             network = False
 
     MODEL.export_to_csv(device_specification, ['Nodes', 'Txpower', 'Total Txpower', 'Penalty', 'RSSI Penalty', 'Entire Power'], os.path.join(
         os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d')}.csv"))
-
     print(tabulate.tabulate(device_specification, headers=[
           'Nodes', 'Txpower', 'Total Txpower', 'Penalty', 'RSSI Penalty', 'Entire Txpower']))
 
-    flatten_data = [[*i] for j in connection_specification for i in j]
-    MODEL.export_to_csv(flatten_data, ['Current Device', 'Next Device', 'Distance',
+    flatten_connection_spec = [[*i] for j in connection_specification for i in j]
+    MODEL.export_to_csv(flatten_connection_spec, ['Current Device', 'Next Device', 'Distance',
                         'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty'])
-    print(tabulate.tabulate(flatten_data, headers=[
+    print(tabulate.tabulate(flatten_connection_spec, headers=[
           'Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty']))
