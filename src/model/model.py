@@ -195,6 +195,12 @@ class Model:
 
     def export_to_csv(self, data: list, labels: list = ['Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty'], loc: str = os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv")):
         with open(loc, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(labels)
+            if isinstance(data[0], list):
+                writer = csv.writer(csvfile)
+                writer.writerow(labels)
+
+            if isinstance(data[0], dict):
+                writer = csv.DictWriter(csvfile, fieldnames=data[0].keys())
+                writer.writeheader()
+
             writer.writerows(data)
