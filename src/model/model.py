@@ -233,3 +233,4 @@ class Model:
         plt.title(
             f"f_c = {self.FC/1e6}MHz, sigma = {self.SIGMA}dB, Exp = {self.EXP}", fontsize=10)
         plt.savefig(path, dpi=300)
+        plt.close()
