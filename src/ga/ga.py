@@ -15,7 +15,7 @@ import model as Model  # noqa
 
 
 class GA:
-    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, min_txpower: int = -20, max_txpower: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1) -> None:
+    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, min_txpower: int = -20, max_txpower: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1, model: Model = Model.Model()) -> None:
         '''
         Devices: Dictionary of devices
         '''
@@ -91,6 +91,11 @@ class GA:
         Mutation Rate: The mutation rate
         '''
         self.MUTATION_RATE = mutation_rate
+
+        '''
+        Model: The model that will be used to calculate the fitness function
+        '''
+        self.MODEL: Model = model
 
     @property
     def distances(self) -> np.array:
@@ -216,9 +221,7 @@ class GA:
             list: List of fitness values.
         '''
 
-        MODEL: Model = Model.Model()
-
-        connection: list = MODEL.combine_network_topology(
+        connection: list = self.MODEL.combine_network_topology(
             solution, unallocated=False)
 
         rssi_penalty: np.ndarray = np.array(
