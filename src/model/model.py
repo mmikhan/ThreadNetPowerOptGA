@@ -3,6 +3,8 @@ import csv
 import itertools
 import numpy as np
 import collections.abc
+import matplotlib.pyplot as plt
+
 from datetime import datetime
 from scipy.spatial.distance import cdist
 
@@ -65,7 +67,7 @@ class Model:
         '''
         self.PENALTY = penalty
 
-    def lognorm(self, fc: float, distance: np.ndarray | np.float64, d0: float, exp: int, sigma: int, noise: bool = False) -> float | np.ndarray:
+    def lognorm(self, fc: float = None, distance: np.ndarray | np.float64 = None, d0: float = None, exp: int = None, sigma: int = None, noise: bool = False) -> float | np.ndarray:
         '''
         Calculate the path loss between two devices.
 
@@ -80,6 +82,21 @@ class Model:
             float | np.ndarray: The path loss.
         '''
 
+        if fc is None:
+            fc = self.FC
+
+        if distance is None:
+            distance = self.DISTANCES
+
+        if d0 is None:
+            d0 = self.D0
+
+        if exp is None:
+            exp = self.EXP
+
+        if sigma is None:
+            sigma = self.SIGMA
+
         # Calculate the wavelength
         lambda_ = 3e8 / fc
 
@@ -88,7 +105,7 @@ class Model:
             10 * exp * np.log10(distance / d0) + sigma
 
         if noise:
-            return path_loss + sigma * np.random.randn(distance.size)[0]
+            return path_loss + sigma * np.random.randn(distance.size)
 
         return path_loss
 
@@ -204,3 +221,15 @@ class Model:
                 writer.writeheader()
 
             writer.writerows(data)
+
+    def plot_path_loss_model(self, path: str = os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-path-loss')}.png"), noise: bool = False) -> None:
+        unique_flatten_distances = np.unique(self.DISTANCES.flatten())
+
+        plt.semilogx(unique_flatten_distances, np.nan_to_num(
+            self.lognorm(distance=unique_flatten_distances, noise=noise)), "k-o")
+        plt.xlabel("Distance (m)"), plt.ylabel(
+            "Path Loss (dB)"), plt.grid(True)
+        plt.suptitle("Log-normal Path Loss Model", fontsize=16)
+        plt.title(
+            f"f_c = {self.FC/1e6}MHz, sigma = {self.SIGMA}dB, Exp = {self.EXP}", fontsize=10)
+        plt.savefig(path, dpi=300)
