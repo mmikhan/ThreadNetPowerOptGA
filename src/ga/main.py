@@ -1,10 +1,15 @@
 import os
+import sys
 import tabulate
 import numpy as np
-import model as Model
 
 from datetime import datetime
 from scipy.spatial.distance import cdist
+
+dir = os.path.join(os.getcwd(), 'src', 'model')
+sys.path.append(dir)
+
+import model as Model  # noqa
 
 TOTAL_DEVICE: int = 8
 
