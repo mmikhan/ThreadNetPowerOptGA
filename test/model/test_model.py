@@ -62,7 +62,10 @@ class TestModel(unittest.TestCase):
 
     def test_path_loss_when_noise_is_true(self):
         self.assertIsInstance(self.model.lognorm(
-            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise=True), float)
+            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise=True), np.ndarray)
+
+        self.assertIsInstance(self.model.lognorm(
+            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise=True)[0], float)
 
     def test_path_loss_when_noise_is_false(self):
         self.assertIsInstance(self.model.lognorm(
@@ -74,10 +77,13 @@ class TestModel(unittest.TestCase):
 
     def test_path_loss_when_noise_is_not_boolean(self):
         self.assertIsInstance(self.model.lognorm(
-            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise="True"), float)
+            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise="True"), np.ndarray)
 
         self.assertIsInstance(self.model.lognorm(
-            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise="False"), float)
+            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise="False"), np.ndarray)
+
+        self.assertIsInstance(self.model.lognorm(
+            self.FC, np.float64(1), self.D0, self.EXP, self.SIGMA, noise="False")[0], float)
 
     def test_path_loss_for_non_zero_distances(self):
         self.assertEqual(np.all(self.DISTANCES[self.DISTANCES != 0]), True)

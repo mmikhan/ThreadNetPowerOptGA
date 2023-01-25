@@ -72,3 +72,5 @@ if __name__ == '__main__':
                         'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty'])
     print(tabulate.tabulate(flatten_connection_spec, headers=[
           'Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty']))
+
+    MODEL.plot_path_loss_model(noise=True)
