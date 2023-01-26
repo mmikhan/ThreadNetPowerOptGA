@@ -17,10 +17,9 @@ TOTAL_DEVICE: int = 8
 # DISTANCE: np.ndarray = np.random.random((TOTAL_DEVICE, 2))
 DISTANCE: np.ndarray = np.array([[1, 10], [1, 15], [1, 20], [1, 25], [
                                 1, 30], [1, 35], [1, 40], [1, 45]])
-DISTANCE_MATRIX: np.ndarray = cdist(DISTANCE, DISTANCE)
 
 MODEL: Model = Model.Model(total_device=TOTAL_DEVICE,
-                           distances=DISTANCE_MATRIX)
+                           distances=cdist(DISTANCE, DISTANCE))
 
 network: bool = True
 
@@ -52,7 +51,7 @@ if __name__ == '__main__':
 
         # Store the connection specification for each device to export to csv
         connection_specification.append(connection)
-        connection_specification.append([()])
+        connection_specification.append([('===', '===', '===', '===', '===', '===', '===')])
 
         # Sum of the entire transmission power:
         # sum of penalty from each combination of nodes + penalty from device type selection + sum of transmission power
@@ -93,7 +92,7 @@ if __name__ == '__main__':
     population: list = [[(nodes[0], nodes[1], np.random.randint(-20, 8))
                          for nodes in important_nodes] for _ in range(POPULATION_SIZE)]
 
-    GA: Ga = Ga.GA(distances=DISTANCE_MATRIX, model=MODEL)
+    GA: Ga = Ga.GA(model=MODEL)
 
     # Calculate the fitness of the initial population
     fitness = [GA.fitness(s) for s in population]
@@ -119,12 +118,4 @@ if __name__ == '__main__':
             'Highest txpower', 'RSSI penalty', 'Penalty check', 'Initial ~ final txpower', 'Worst ~ best txpower'],
         os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
 
-    import matplotlib.pyplot as plt
-
-    # Plot the fitness values of the population over the generations
-    plt.plot(sorted([sum(x) for x in fitness], reverse=True))
-    plt.xlabel("Generation")
-    plt.ylabel("Fitness Value")
-    plt.savefig(os.path.join(os.getcwd(), "dist",
-                f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png"))
-    plt.close()
+    GA.plot_fitness(fitness)
