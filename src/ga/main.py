@@ -51,7 +51,8 @@ if __name__ == '__main__':
 
         # Store the connection specification for each device to export to csv
         connection_specification.append(connection)
-        connection_specification.append([('===', '===', '===', '===', '===', '===', '===')])
+        connection_specification.append(
+            [('===', '===', '===', '===', '===', '===', '===')])
 
         # Sum of the entire transmission power:
         # sum of penalty from each combination of nodes + penalty from device type selection + sum of transmission power
@@ -103,19 +104,11 @@ if __name__ == '__main__':
     merge_solution = [(node, i, fitness[0][:-1][i])
                       for i, (node, position, txpower) in enumerate(important_nodes)]
 
-    # Re-verify the best fitness of the merged solution with the GA
-    retest_merge_solutions = [GA.fitness(r)
-                              for r in [s for s in [merge_solution]]]
-
-    print(tabulate.tabulate(merge_solution, headers=[
-        'Node', 'Position', 'Fitness']))
-    print(f"Fitness: {fitness[0][:-1]}\nLowest transmission power: {GA.sphere(fitness[0])} dBm\nBest solution: {merge_solution}\nDifference between the initial and best transmission power: {GA.sphere(txpower) - GA.sphere(fitness[0])}\nDifference between the worst and best transmission power: {GA.sphere(fitness[-1]) - GA.sphere(fitness[0])}\nLowest_txpower: {GA.sphere(fitness[0])}\nHighest_txpower: {GA.sphere(fitness[-1])}\nRSSI_penalty: {retest_merge_solutions[0][-1]}\nPenalty_check: {'✅' if retest_merge_solutions[0][-1] == 0 else '❌'}\nInitial_~_final_txpower: {GA.sphere(fitness[0]) - GA.sphere(txpower)}\nWorst_~_best_txpower: {GA.sphere(fitness[0]) - GA.sphere(fitness[-1])}")
+    print(tabulate.tabulate(merge_solution,
+          headers=['Node', 'Position', 'Fitness']))
+    print(f"Fitness: {fitness[0][:-1]}\nLowest transmission power: {GA.sphere(fitness[0])} dBm\nBest solution: {merge_solution}\nDifference between the initial and best transmission power: {GA.sphere(txpower) - GA.sphere(fitness[0])}\nDifference between the worst and best transmission power: {GA.sphere(fitness[-1]) - GA.sphere(fitness[0])}\nLowest_txpower: {GA.sphere(fitness[0])}\nHighest_txpower: {GA.sphere(fitness[-1])}\nRSSI_penalty: {fitness[0][-1]}")
 
     MODEL.export_to_csv(
-        [[fitness[0][:-1], [GA.sphere(fitness[0])], merge_solution, [GA.sphere(txpower) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1]) - GA.sphere(fitness[0])], [GA.sphere(fitness[0])], [GA.sphere(
-            fitness[-1])], retest_merge_solutions[0][-1], ['✅' if retest_merge_solutions[0][-1] == 0 else '❌'], [GA.sphere(fitness[0]) - GA.sphere(txpower)], [GA.sphere(fitness[0]) - GA.sphere(fitness[-1])]]],
-        ['Fitness', 'Lowest txpower', 'Best solution', 'Initial // best txpower', 'Worst // best txpower', 'Lowest txpower',
-            'Highest txpower', 'RSSI penalty', 'Penalty check', 'Initial ~ final txpower', 'Worst ~ best txpower'],
-        os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
+        [[fitness[0][:-1], [GA.sphere(fitness[0])], merge_solution, [GA.sphere(txpower) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1]) - GA.sphere(fitness[0])], [GA.sphere(fitness[0])], [GA.sphere(fitness[-1])], fitness[0][-1]]], ['Fitness', 'Lowest txpower', 'Best solution', 'Initial // best txpower', 'Worst // best txpower', 'Lowest txpower', 'Highest txpower', 'RSSI penalty'], os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
 
     GA.plot_fitness(fitness)
