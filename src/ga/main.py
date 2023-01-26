@@ -17,9 +17,10 @@ TOTAL_DEVICE: int = 8
 # DISTANCE: np.ndarray = np.random.random((TOTAL_DEVICE, 2))
 DISTANCE: np.ndarray = np.array([[1, 10], [1, 15], [1, 20], [1, 25], [
                                 1, 30], [1, 35], [1, 40], [1, 45]])
+DISTANCE_MATRIX: np.ndarray = cdist(DISTANCE, DISTANCE)
 
 MODEL: Model = Model.Model(total_device=TOTAL_DEVICE,
-                           distances=cdist(DISTANCE, DISTANCE))
+                           distances=DISTANCE_MATRIX)
 
 network: bool = True
 
@@ -74,7 +75,8 @@ if __name__ == '__main__':
     print(tabulate.tabulate(device_specification, headers=[
           'Nodes', 'Txpower', 'Total Txpower', 'Penalty', 'RSSI Penalty', 'Entire Txpower']))
 
-    flatten_connection_spec = [[*i] for j in connection_specification for i in j]
+    flatten_connection_spec = [[*i]
+                               for j in connection_specification for i in j]
     MODEL.export_to_csv(flatten_connection_spec, ['Current Device', 'Next Device', 'Distance',
                         'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty'])
     print(tabulate.tabulate(flatten_connection_spec, headers=[
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     population: list = [[(nodes[0], nodes[1], np.random.randint(-20, 8))
                          for nodes in important_nodes] for _ in range(POPULATION_SIZE)]
 
-    GA: Ga = Ga.GA(distances=cdist(DISTANCE, DISTANCE), model=MODEL)
+    GA: Ga = Ga.GA(distances=DISTANCE_MATRIX, model=MODEL)
 
     # Calculate the fitness of the initial population
     fitness = [GA.fitness(s) for s in population]
