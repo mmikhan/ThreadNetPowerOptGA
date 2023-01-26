@@ -234,3 +234,34 @@ class Model:
             f"f_c = {self.FC/1e6}MHz, sigma = {self.SIGMA}dB, Exp = {self.EXP}", fontsize=10)
         plt.savefig(path, dpi=300)
         plt.close()
+
+    def plot_distance(self, distance: np.array = None, path: str = os.path.join(os.getcwd(), 'dist', 'distance.png')) -> None:
+        '''
+        Plot the distance matrix.
+
+        Args:
+            distance (np.array): Distance matrix. Defaults to None.
+            path (str): Path to save the plot. Defaults to os.path.join(os.getcwd(), 'dist', 'distance.png').
+
+        Raises:
+            TypeError: If the distance matrix is not a numpy array.
+
+        Returns:
+            None
+        '''
+        if distance is None:
+            distance = self.distances
+
+        plt.imshow(distance, cmap='viridis', interpolation='nearest')
+
+        # Write distance values on the plot for each cell
+        for i in range(len(distance)):
+            for j in range(len(distance)):
+                plt.text(j, i, round(
+                    distance[i][j], 2), ha="center", va="center", color="w")
+
+        plt.colorbar()
+        plt.title("Euclidean Distance Matrix")
+        plt.xlabel("Locations"), plt.ylabel("Locations")
+        plt.savefig(path, dpi=300)
+        plt.close()
