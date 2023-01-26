@@ -2,6 +2,9 @@ import os
 import sys
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+
+from datetime import datetime
 
 dir = os.path.join(os.getcwd(), 'src', 'model')
 sys.path.append(dir)
@@ -35,6 +38,19 @@ class GA:
         Model: The model that will be used to calculate the fitness function
         '''
         self.MODEL: Model = model
+
+    def plot_fitness(self, fitness: list, path: str = os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.png")) -> None:
+        '''
+        Plot the fitness of the network.
+
+        Args:
+            fitness (list): List of fitness values.
+            path (str): Path to save the plot.
+        '''
+        plt.plot(sorted([sum(x) for x in fitness], reverse=True))
+        plt.xlabel("Generation"), plt.ylabel("Fitness Value")
+        plt.savefig(path, dpi=300)
+        plt.close()
 
     def sphere(self, fitness: list) -> int:
         '''
