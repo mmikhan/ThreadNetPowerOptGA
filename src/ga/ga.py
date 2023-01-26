@@ -48,7 +48,10 @@ class GA:
             path (str): Path to save the plot.
         '''
         plt.plot(sorted([sum(x) for x in fitness], reverse=True))
-        plt.xlabel("Generation"), plt.ylabel("Fitness Value")
+        plt.xlabel("Generation"), plt.ylabel("Transmission Power (dBm)")
+        plt.suptitle("Transmission Power of the Network", fontsize=16)
+        plt.title(
+            f"Max: {max([sum(x) for x in fitness])}, Min: {min([sum(x) for x in fitness])}")
         plt.savefig(path, dpi=300)
         plt.close()
 
