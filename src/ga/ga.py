@@ -86,37 +86,17 @@ class GA:
 
         return [i[-1] for i in solution] + [rssi_penalty]
 
-    def selection(self, population: list, fitness: list, method: str = "probability") -> list:
+    def selection(self, population: list, fitness: list) -> list:
         '''
         Select the best individuals in the population.
 
         Args:
             population (list): List of individuals in the population.
             fitness (list): List of fitness values.
-            method (str): The selection method. Defaults to "probability".
 
         Returns:
             list: List of selected individuals.
-
-        Raises:
-            ValueError: The selection method must be either probability or sort.
         '''
-
-        if method not in ["probability", "sort"]:
-            raise ValueError(
-                "The selection method must be either probability or sort")
-
-        if method == "sort":
-            # Sort the individuals in the population based on their fitness values
-            sorted_population = [
-                x for _, x in sorted(zip(fitness, population))]
-
-            # Select the best individuals in the population
-            selected_population = sorted_population[:len(
-                sorted_population) // 2]
-
-            return selected_population
-
         # Calculate the total fitness of the population
         total_fitness = sum(fitness)
 
