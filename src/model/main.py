@@ -10,9 +10,9 @@ TOTAL_DEVICE: int = 8
 
 DISTANCE: np.ndarray = np.array([[1, 10], [1, 15], [1, 20], [1, 25], [
                                 1, 30], [1, 35], [1, 40], [1, 45]])
+DISTANCE_MATRIX: np.ndarray = cdist(DISTANCE, DISTANCE)
 
-MODEL: Model = Model.Model(total_device=TOTAL_DEVICE,
-                           distances=cdist(DISTANCE, DISTANCE))
+MODEL: Model = Model.Model(total_device=TOTAL_DEVICE, distances=DISTANCE_MATRIX)
 
 network: bool = True
 
@@ -74,3 +74,4 @@ if __name__ == '__main__':
           'Current Device', 'Next Device', 'Distance', 'Path Loss', 'RSSI Downlink', 'RSSI Uplink', 'Sensitivity Penalty']))
 
     MODEL.plot_path_loss_model(noise=True)
+    MODEL.plot_distance(distance=DISTANCE_MATRIX)
