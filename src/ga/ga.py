@@ -1,12 +1,7 @@
 import os
 import sys
 import random
-import itertools
 import numpy as np
-import collections.abc
-
-from matplotlib import pyplot as plt
-from scipy.spatial.distance import cdist
 
 dir = os.path.join(os.getcwd(), 'src', 'model')
 sys.path.append(dir)
@@ -15,63 +10,7 @@ import model as Model  # noqa
 
 
 class GA:
-    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), total_devices: int = 8, fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, min_txpower: int = -20, max_txpower: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1, model: Model = Model.Model()) -> None:
-        '''
-        Devices: Dictionary of devices
-        '''
-        self.DEVICES = devices
-
-        '''
-        Gt: Transmitter antenna gain
-        '''
-        self.GT = gt
-
-        '''
-        Gr: Receiver antenna gain
-        '''
-        self.GR = gr
-
-        '''
-        RSSI Threshold: The minimum RSSI value that a device can receive
-        '''
-        self.RSSI_THRESHOLD = rssi_threshold
-
-        '''
-        Penalty: The penalty that will be added to the fitness function
-        if the RSSI value is less than the RSSI Threshold
-        '''
-        self.PENALTY = penalty
-
-        '''
-        Distances: The distance between each device in the network
-        '''
-        self.DISTANCES = distances
-
-        '''
-        Total Devices: The total number of devices in the network
-        '''
-        self.TOTAL_DEVICES = total_devices
-
-        '''
-        fc: The carrier frequency
-        '''
-        self.FC = fc
-
-        '''
-        d0: The reference distance
-        '''
-        self.D0 = d0
-
-        '''
-        sigma: The standard deviation of the log-normal shadowing model or variance
-        '''
-        self.SIGMA = sigma
-
-        '''
-        Exp: The path loss exponent
-        '''
-        self.EXP = exp
-
+    def __init__(self, min_txpower: int = -20, max_txpower: int = 8, max_iteration: int = 100, mutation_rate: float = 0.1, model: Model = Model.Model()) -> None:
         '''
         TxPower Min: The minimum transmission power
         '''
@@ -96,107 +35,6 @@ class GA:
         Model: The model that will be used to calculate the fitness function
         '''
         self.MODEL: Model = model
-
-    @property
-    def distances(self) -> np.array:
-        '''
-        Calculate the distance between each device in the network.
-
-        Returns:
-            np.array: Distance matrix.
-        '''
-        return self.DISTANCES
-
-    @distances.setter
-    def distances(self, matrix: np.array) -> None:
-        '''
-        Set the distance matrix.
-
-        Args:
-            matrix (np.array): Distance matrix.
-        '''
-        if not isinstance(matrix, np.ndarray):
-            raise TypeError("The distance matrix must be a numpy array")
-
-        if not matrix.size:
-            random_matrix = np.random.random((self.TOTAL_DEVICES, 2))
-
-            self.DISTANCES = random_matrix
-        else:
-            self.DISTANCES = matrix
-
-    def plot_distance(self, distance: np.array = None, path: str = os.path.join(os.getcwd(), 'dist', 'distance.png')) -> None:
-        '''
-        Plot the distance matrix.
-
-        Args:
-            distance (np.array): Distance matrix. Defaults to None.
-            path (str): Path to save the plot. Defaults to os.path.join(os.getcwd(), 'dist', 'distance.png').
-
-        Raises:
-            TypeError: If the distance matrix is not a numpy array.
-
-        Returns:
-            None
-        '''
-        if distance is None:
-            distance = self.distances
-
-        plt.imshow(distance, cmap='viridis', interpolation='nearest')
-
-        # Write distance values on the plot for each cell
-        for i in range(len(distance)):
-            for j in range(len(distance)):
-                plt.text(j, i, round(
-                    distance[i][j], 2), ha="center", va="center", color="w")
-
-        plt.colorbar()
-        plt.title("Euclidean Distance Matrix")
-        plt.xlabel("Locations"), plt.ylabel("Locations")
-        plt.savefig(path, dpi=300)
-        plt.show()
-
-        def grouper(iterator: collections.abc.Iterator, n: int) -> collections.abc.Iterator[list]:
-            '''
-            Group the iterator into n-sized chunks
-                - iterator: iterator to group
-                - n: size of the chunk
-
-                - Example:
-                    - grouper([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)
-                    - [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-
-                - Reference: https://stackoverflow.com/a/71951567/3313563
-            '''
-            while chunk := list(itertools.islice(iterator, n)):
-                yield chunk
-
-    def lognorm(self, fc: float, d: float, d0: float, exp: int, sigma: int, noise: bool = False) -> list:
-        '''
-        Calculate the path loss between two devices.
-
-        Args:
-            fc (float): The carrier frequency.
-            d (float): The distance between the two devices.
-            d0 (float): The reference distance.
-            exp (int): The path loss exponent.
-            sigma (int): The standard deviation of the log-normal shadowing model or variance.
-
-        Returns:
-            list: The path loss and the standard deviation of the log-normal shadowing model.
-        '''
-
-        # Calculate the wavelength
-        lambda_ = 3e8 / fc
-
-        # Calculate the path loss
-        path_loss = 20 * np.log10(lambda_ / (4 * np.pi * d)) + \
-            10 * exp * np.log10(d / d0) + sigma
-
-        if noise:
-            return path_loss + sigma * np.random.randn(d.size)
-
-        return [path_loss]
 
     def sphere(self, fitness: list) -> int:
         '''
