@@ -96,7 +96,7 @@ if __name__ == '__main__':
     GA: Ga = Ga.GA(model=MODEL)
 
     # Calculate the fitness of the initial population
-    fitness = [GA.fitness(s) for s in population]
+    fitness: list = [GA.fitness(s) for s in population]
 
     population, fitness = GA.run(population, fitness)
 
