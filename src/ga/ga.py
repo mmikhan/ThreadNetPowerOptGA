@@ -120,7 +120,7 @@ class GA:
 
         return selected_population
 
-    def crossover(self, parent1: list, parent2: list) -> list:
+    def crossover(self, parent1: list, parent2: list) -> tuple:
         '''
         Crossover the best individuals in the population.
 
