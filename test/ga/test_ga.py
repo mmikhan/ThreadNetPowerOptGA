@@ -127,6 +127,45 @@ class TestGA(unittest.TestCase):
 
         self.assertIsInstance(self.GA.crossover(parent1, parent2), tuple)
 
+    def test_mutation_return_same_or_swapped_child_elements(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, self.FITNESS[0])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertCountEqual(self.GA.mutation(
+            [child1, child2], 10.0), [child1, child2])
+
+        self.assertCountEqual(self.GA.mutation(
+            [child1, child2], self.GA.MUTATION_RATE), [child1, child2])
+
+    def test_mutation_return_replace_txpower_randomly(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, self.FITNESS[0])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertTrue(self.GA.mutation([child1, child2], 10.0, method='random') == [
+                        child1, child2] or self.GA.mutation([child1, child2], 10.0, method='random') != [child1, child2])
+
+    def test_mutation_random_mode_returns_three_elements_in_a_tuple(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, self.FITNESS[0])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertEqual(len(self.GA.mutation(
+            [child1, child2], 10.0, method='random')[0]), 3)
+
+        self.assertEqual(len(self.GA.mutation(
+            [child1, child2], 10.0, method='random')[-1]), 3)
+
 
 if __name__ == '__main__':
     unittest.main()
