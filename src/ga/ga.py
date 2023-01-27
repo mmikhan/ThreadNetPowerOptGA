@@ -162,7 +162,7 @@ class GA:
         if method == "random":
             for i in range(len(solution)):
                 if np.random.random() < mutation_rate:
-                    solution[i] = (solution[i][0], solution[i][1], solution[i][2], random.randint(
+                    solution[i] = (solution[i][0], solution[i][1], random.randint(
                         self.MIN_TXPOWER, self.MAX_TXPOWER))
 
             return solution
