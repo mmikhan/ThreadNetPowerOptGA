@@ -253,6 +253,19 @@ class TestModel(unittest.TestCase):
         path: str = os.path.join(os.getcwd(
         ), 'dist', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-path-loss')}.png")
 
+        self.model.plot_path_loss_model(path)
+
+        self.assertTrue(path)
+        self.assertTrue(os.path.exists(path))
+
+        os.remove(path)
+
+        self.assertFalse(os.path.exists(path))
+
+    def test_plot_path_loss_model_stored_in_file_with_noise(self):
+        path: str = os.path.join(os.getcwd(
+        ), 'dist', f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-path-loss')}.png")
+
         self.model.plot_path_loss_model(path, noise=True)
 
         self.assertTrue(path)
