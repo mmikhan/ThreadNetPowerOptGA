@@ -20,15 +20,16 @@ class TestGA(unittest.TestCase):
         self.GA = Ga.GA()
         self.MODEL = Model.Model()
 
-        # fitness is the transmission power of each node
-        self.FITNESS = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+        _NODES = [1, 2, 3]
+        _POSITION = [2, 3, 4]
+        _TXPOWER = [-2, 4, 8]
 
-        NODES = [1, 2, 3]
-        POSITION = [2, 3, 4]
-        TXPOWER = [-2, 4, 8]
+        _POPULATION_SIZE = 10
 
-        self.POPULATION = [(node, position, txpower)
-                           for (node, position, txpower) in zip(NODES, POSITION, TXPOWER)]
+        self.POPULATION = [[(node, position, txpower) for (node, position, txpower) in zip(
+            _NODES, _POSITION, _TXPOWER)] for _ in range(_POPULATION_SIZE)]
+
+        self.FITNESS: list = [self.GA.fitness(s) for s in self.POPULATION]
 
         return super().setUp()
 
@@ -88,20 +89,20 @@ class TestGA(unittest.TestCase):
         self.assertFalse(os.path.exists(path))
 
     def test_sphere_for_all_fitness(self) -> None:
-        self.assertEqual(self.GA.sphere(np.array(self.FITNESS).flatten()), 45)
+        self.assertEqual(self.GA.sphere(np.array(self.FITNESS).flatten()), 100)
 
     def test_sphere_for_lowest_fitness(self) -> None:
-        self.assertEqual(self.GA.sphere(self.FITNESS[0]), 6)
+        self.assertEqual(self.GA.sphere(self.FITNESS[0]), 10)
 
     def test_sphere_for_highest_fitness(self) -> None:
-        self.assertEqual(self.GA.sphere(self.FITNESS[-1]), 24)
+        self.assertEqual(self.GA.sphere(self.FITNESS[-1]), 10)
 
     def test_fitness_return_only_transmission_power_from_population(self) -> None:
-        self.assertEqual(self.GA.fitness(self.POPULATION)[
-                         :-1], [(txpower) for (_, _, txpower) in self.POPULATION])
+        self.assertEqual(self.GA.fitness(self.POPULATION[0])[
+                         :-1], [(txpower) for (_, _, txpower) in self.POPULATION[0]])
 
     def test_fitness_return_include_rssi_penalty(self) -> None:
-        self.assertEqual(len(self.GA.fitness(self.POPULATION)), 4)
+        self.assertEqual(len(self.GA.fitness(self.POPULATION[0])), 4)
 
     def test_selection_return_same_length_of_population(self) -> None:
         self.assertEqual(len(self.GA.selection(
@@ -136,10 +137,14 @@ class TestGA(unittest.TestCase):
         child1, child2 = self.GA.crossover(parent1, parent2)
 
         self.assertCountEqual(self.GA.mutation(
-            [child1, child2], 10.0), [child1, child2])
+            child1, 10.0), child1)
+        self.assertCountEqual(self.GA.mutation(
+            child2, 10.0), child2)
 
         self.assertCountEqual(self.GA.mutation(
-            [child1, child2], self.GA.MUTATION_RATE), [child1, child2])
+            child1, self.GA.MUTATION_RATE), child1)
+        self.assertCountEqual(self.GA.mutation(
+            child2, self.GA.MUTATION_RATE), child2)
 
     def test_mutation_return_replace_txpower_randomly(self) -> None:
         selected_population = self.GA.selection(
@@ -167,33 +172,26 @@ class TestGA(unittest.TestCase):
             [child1, child2], 10.0, method='random')[-1]), 3)
 
     def test_run_return_a_tuple(self) -> None:
-        POPULATION = [self.POPULATION for _ in range(10)]
-
-        self.assertIsInstance(self.GA.run(POPULATION, self.FITNESS), tuple)
+        self.assertIsInstance(self.GA.run(
+            self.POPULATION, self.FITNESS), tuple)
 
     def test_run_return_population_and_fitness(self) -> None:
-        POPULATION = [self.POPULATION for _ in range(10)]
-
-        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)), 2)
+        self.assertEqual(len(self.GA.run(self.POPULATION, self.FITNESS)), 2)
 
     def test_run_return_population_and_fitness_with_given_population_length(self) -> None:
-        POPULATION = [self.POPULATION for _ in range(10)]
+        self.assertEqual(
+            len(self.GA.run(self.POPULATION, self.FITNESS)[0]), 10)
 
-        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)[0]), 10)
-
-        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)[1]), 10)
+        self.assertEqual(
+            len(self.GA.run(self.POPULATION, self.FITNESS)[1]), 10)
 
     def test_run_return_population_does_not_include_given_population_in_same_order(self) -> None:
-        POPULATION = [self.POPULATION for _ in range(10)]
-
         self.assertNotEqual(self.GA.run(
-            POPULATION, self.FITNESS)[0], POPULATION)
+            self.POPULATION, self.FITNESS)[0], self.POPULATION)
 
     def test_run_return_fitness_does_not_include_given_fitness_in_same_order(self) -> None:
-        POPULATION = [self.POPULATION for _ in range(10)]
-
         self.assertNotEqual(self.GA.run(
-            POPULATION, self.FITNESS)[1], self.FITNESS)
+            self.POPULATION, self.FITNESS)[1], self.FITNESS)
 
 
 if __name__ == '__main__':
