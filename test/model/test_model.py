@@ -3,6 +3,7 @@ import sys
 import random
 import unittest
 import numpy as np
+from datetime import datetime
 from scipy.spatial.distance import cdist
 
 '''
@@ -235,6 +236,18 @@ class TestModel(unittest.TestCase):
 
         self.assertListEqual(self.model.mathematical_constraints_penalty(
             valid_nodes)[0], valid_nodes)
+
+    def test_plot_distance_stored_in_file(self):
+        path: str = os.path.join(os.getcwd(), 'dist', "distance.png")
+
+        self.model.plot_distance(self.DISTANCES, path)
+
+        self.assertTrue(path)
+        self.assertTrue(os.path.exists(path))
+
+        os.remove(path)
+
+        self.assertFalse(os.path.exists(path))
 
 
 if __name__ == '__main__':
