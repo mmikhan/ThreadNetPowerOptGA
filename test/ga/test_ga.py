@@ -166,6 +166,35 @@ class TestGA(unittest.TestCase):
         self.assertEqual(len(self.GA.mutation(
             [child1, child2], 10.0, method='random')[-1]), 3)
 
+    def test_run_return_a_tuple(self) -> None:
+        POPULATION = [self.POPULATION for _ in range(10)]
+
+        self.assertIsInstance(self.GA.run(POPULATION, self.FITNESS), tuple)
+
+    def test_run_return_population_and_fitness(self) -> None:
+        POPULATION = [self.POPULATION for _ in range(10)]
+
+        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)), 2)
+
+    def test_run_return_population_and_fitness_with_given_population_length(self) -> None:
+        POPULATION = [self.POPULATION for _ in range(10)]
+
+        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)[0]), 10)
+
+        self.assertEqual(len(self.GA.run(POPULATION, self.FITNESS)[1]), 10)
+
+    def test_run_return_population_does_not_include_given_population_in_same_order(self) -> None:
+        POPULATION = [self.POPULATION for _ in range(10)]
+
+        self.assertNotEqual(self.GA.run(
+            POPULATION, self.FITNESS)[0], POPULATION)
+
+    def test_run_return_fitness_does_not_include_given_fitness_in_same_order(self) -> None:
+        POPULATION = [self.POPULATION for _ in range(10)]
+
+        self.assertNotEqual(self.GA.run(
+            POPULATION, self.FITNESS)[1], self.FITNESS)
+
 
 if __name__ == '__main__':
     unittest.main()
