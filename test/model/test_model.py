@@ -275,6 +275,37 @@ class TestModel(unittest.TestCase):
 
         self.assertFalse(os.path.exists(path))
 
+    def test_export_to_csv_stored_in_file_from_a_list(self):
+        data: list = [[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15], [
+            16, 17, 18], [19, 20, 21], [22, 23, 24], [25, 26, 27], [28, 29, 30]]]
+        labels: list = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+        loc: str = os.path.join(
+            os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-list')}.csv")
+
+        self.model.export_to_csv(data, labels, loc)
+
+        self.assertTrue(loc)
+        self.assertTrue(os.path.exists(loc))
+
+        os.remove(loc)
+
+        self.assertFalse(os.path.exists(loc))
+
+    def test_export_to_csv_stored_in_file_from_a_dict(self):
+        data: dict = [{'a': [1, 2, 3], 'b': [4, 5, 6], 'c': [7, 8, 9], 'd': [10, 11, 12], 'e': [13, 14, 15], 'f': [
+            16, 17, 18], 'g': [19, 20, 21], 'h': [22, 23, 24], 'i': [25, 26, 27], 'j': [28, 29, 30]}]
+        loc: str = os.path.join(
+            os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-dict')}.csv")
+
+        self.model.export_to_csv(data, loc=loc)
+
+        self.assertTrue(loc)
+        self.assertTrue(os.path.exists(loc))
+
+        os.remove(loc)
+
+        self.assertFalse(os.path.exists(loc))
+
 
 if __name__ == '__main__':
     unittest.main()
