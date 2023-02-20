@@ -87,7 +87,7 @@ if __name__ == '__main__':
     '''
     Let the GA do the transmission power optimization begins
     '''
-    POPULATION_SIZE: int = 20
+    POPULATION_SIZE: int = 100
 
     # Generate the initial population by replacing the transmission power of each device with newer values
     population: list = [[(nodes[0], nodes[1], np.random.randint(-20, 8))
@@ -100,6 +100,8 @@ if __name__ == '__main__':
 
     population, fitness = GA.run(population, fitness)
 
+    fitness: list = sorted(fitness, key=lambda x: x[-1])
+
     # Merge the initial nodes with the best solution from the GA
     merge_solution = [(node, i, fitness[0][:-1][i])
                       for i, (node, position, txpower) in enumerate(important_nodes)]
@@ -109,6 +111,6 @@ if __name__ == '__main__':
     print(f"Fitness: {fitness[0][:-1]}\nLowest transmission power: {GA.sphere(fitness[0])} dBm\nBest solution: {merge_solution}\nDifference between the initial and best transmission power: {GA.sphere(txpower) - GA.sphere(fitness[0])}\nDifference between the worst and best transmission power: {GA.sphere(fitness[-1]) - GA.sphere(fitness[0])}\nLowest_txpower: {GA.sphere(fitness[0])}\nHighest_txpower: {GA.sphere(fitness[-1])}\nRSSI_penalty: {fitness[0][-1]}")
 
     MODEL.export_to_csv(
-        [[fitness[0][:-1], [GA.sphere(fitness[0])], merge_solution, [GA.sphere(txpower) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1]) - GA.sphere(fitness[0])], [GA.sphere(fitness[0])], [GA.sphere(fitness[-1])], fitness[0][-1]]], ['Fitness', 'Lowest txpower', 'Best solution', 'Initial // best txpower', 'Worst // best txpower', 'Lowest txpower', 'Highest txpower', 'RSSI penalty'], os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
+        [[fitness[0][:-1], [GA.sphere(fitness[0])], merge_solution, [GA.sphere(txpower) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1]) - GA.sphere(fitness[0])], [GA.sphere(fitness[-1])], fitness[0][-1]]], ['Fitness', 'Lowest txpower', 'Best solution', 'Initial // best txpower', 'Worst // best txpower', 'Highest txpower', 'RSSI penalty'], os.path.join(os.getcwd(), "dist", f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S-d-ga')}.csv"))
 
     GA.plot_fitness(fitness)
