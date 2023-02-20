@@ -106,15 +106,29 @@ class TestGA(unittest.TestCase):
 
     def test_selection_return_same_length_of_population(self) -> None:
         self.assertEqual(len(self.GA.selection(
-            self.POPULATION, self.FITNESS[0])), len(self.POPULATION))
+            self.POPULATION, [sum(x) for x in self.FITNESS])), len(self.POPULATION))
+
+        self.assertEqual(len(self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")), len(self.POPULATION))
 
     def test_selection_return_population_cumulatively(self) -> None:
         self.assertNotEqual(self.GA.selection(
-            self.POPULATION, self.FITNESS[0]), self.POPULATION[0])
+            self.POPULATION, [sum(x) for x in self.FITNESS]), self.POPULATION[0])
+
+        self.assertNotEqual(self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted"), self.POPULATION[0])
 
     def test_crossover_return_two_length_of_separate_parents(self) -> None:
         selected_population = self.GA.selection(
-            self.POPULATION, self.FITNESS[0])
+            self.POPULATION, [sum(x) for x in self.FITNESS])
+
+        parent1, parent2 = selected_population[0], selected_population[1]
+
+        self.assertEqual(len(self.GA.crossover(parent1, parent2)), 2)
+
+    def test_crossover_return_two_length_of_separate_parents_using_sorted_selection_method(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")
 
         parent1, parent2 = selected_population[0], selected_population[1]
 
@@ -122,7 +136,15 @@ class TestGA(unittest.TestCase):
 
     def test_crossover_return_a_tuple(self) -> None:
         selected_population = self.GA.selection(
-            self.POPULATION, self.FITNESS[0])
+            self.POPULATION, [sum(x) for x in self.FITNESS])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        self.assertIsInstance(self.GA.crossover(parent1, parent2), tuple)
+
+    def test_crossover_return_a_tuple_using_sorted_selection_method(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")
 
         parent1, parent2 = selected_population[0], selected_population[-1]
 
@@ -130,7 +152,25 @@ class TestGA(unittest.TestCase):
 
     def test_mutation_return_same_or_swapped_child_elements(self) -> None:
         selected_population = self.GA.selection(
-            self.POPULATION, self.FITNESS[0])
+            self.POPULATION, [sum(x) for x in self.FITNESS])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertCountEqual(self.GA.mutation(
+            child1, 10.0), child1)
+        self.assertCountEqual(self.GA.mutation(
+            child2, 10.0), child2)
+
+        self.assertCountEqual(self.GA.mutation(
+            child1, self.GA.MUTATION_RATE), child1)
+        self.assertCountEqual(self.GA.mutation(
+            child2, self.GA.MUTATION_RATE), child2)
+
+    def test_mutation_return_same_or_swapped_child_elements_using_sorted_selection_method(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")
 
         parent1, parent2 = selected_population[0], selected_population[-1]
 
@@ -148,7 +188,18 @@ class TestGA(unittest.TestCase):
 
     def test_mutation_return_replace_txpower_randomly(self) -> None:
         selected_population = self.GA.selection(
-            self.POPULATION, self.FITNESS[0])
+            self.POPULATION, [sum(x) for x in self.FITNESS])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertTrue(self.GA.mutation([child1, child2], 10.0, method='random') == [
+                        child1, child2] or self.GA.mutation([child1, child2], 10.0, method='random') != [child1, child2])
+
+    def test_mutation_return_replace_txpower_randomly_using_sorted_selection_method(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")
 
         parent1, parent2 = selected_population[0], selected_population[-1]
 
@@ -160,6 +211,20 @@ class TestGA(unittest.TestCase):
     def test_mutation_random_mode_returns_three_elements_in_a_tuple(self) -> None:
         selected_population = self.GA.selection(
             self.POPULATION, self.FITNESS[0])
+
+        parent1, parent2 = selected_population[0], selected_population[-1]
+
+        child1, child2 = self.GA.crossover(parent1, parent2)
+
+        self.assertEqual(len(self.GA.mutation(
+            [child1, child2], 10.0, method='random')[0]), 3)
+
+        self.assertEqual(len(self.GA.mutation(
+            [child1, child2], 10.0, method='random')[-1]), 3)
+
+    def test_mutation_random_mode_returns_three_elements_in_a_tuple_using_sorted_selection_method(self) -> None:
+        selected_population = self.GA.selection(
+            self.POPULATION, [sum(x) for x in self.FITNESS], method="sorted")
 
         parent1, parent2 = selected_population[0], selected_population[-1]
 
