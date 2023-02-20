@@ -10,7 +10,7 @@ from scipy.spatial.distance import cdist
 
 
 class Model:
-    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, total_device: int = 8, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 4, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000):
+    def __init__(self, devices: dict = {"Unallocated": 0, "SEED": 1, "REED": 2, "Router": 3, "Leader": 4, "Border Router": 5, }, total_device: int = 8, distances: np.array = cdist(np.random.random((8, 2)), np.random.random((8, 2))), fc: float = 2.4e9, d0: float = 0.25, sigma: int = 3, exp: int = 5, gt: int = 1, gr: int = 1, rssi_threshold: int = -100, penalty: int = 1000):
         '''
         Devices: Dictionary of devices
         '''
