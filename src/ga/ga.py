@@ -86,17 +86,38 @@ class GA:
 
         return [i[-1] for i in solution] + [rssi_penalty]
 
-    def selection(self, population: list, fitness: list) -> list:
+    def selection(self, population: list, fitness: list, method: str = "tournament") -> list:
         '''
         Select the best individuals in the population.
 
         Args:
             population (list): List of individuals in the population.
             fitness (list): List of fitness values.
+            method (str): The selection method. Defaults to "tournament".
 
         Returns:
             list: List of selected individuals.
+
+        Raises:
+            ValueError: The selection method must be either tournament or sorted.
         '''
+        if method not in ["tournament", "sorted"]:
+            raise ValueError(
+                "The selection method must be either tournament or sorted.")
+
+        if method == "sorted":
+            # sort population based on fitness values, including penalty
+            sorted_population = [
+                x for _, x in sorted(zip(fitness, population))]
+
+            selected_population = []
+
+            for i in range(len(population)):
+                # select the best individuals in the population
+                selected_population.append(sorted_population[i])
+
+            return selected_population
+
         # Calculate the total fitness of the population
         total_fitness = sum(fitness)
 
@@ -202,7 +223,7 @@ class GA:
 
         for i in range(self.MAX_ITERATION):
             selected_population = self.selection(
-                population, [sum(x) for x in fitness])
+                population, [sum(x) for x in fitness], method="sorted")
 
             children = []
 
