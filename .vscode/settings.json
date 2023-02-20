@@ -1,6 +1,8 @@
 {
     "editor.minimap.enabled": false,
     "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
     "python.testing.unittestArgs": [
         "-v",
         "-s",
